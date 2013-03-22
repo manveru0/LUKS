@@ -43,39 +43,53 @@ make NDK_ROOT=/usr/local/android-ndk-r8d (or change the path to where you put th
 adb push sbin/cryptsetup.static /system/xbin
 For more info, read the README
 Or you can download our binary: cryptsetup (right-click and download)
+
+
 Usage - Encrypted Mount
+
 For any CyanogenMOD (http://cyanogenmod.com) CM6.x device... creating a 50 megabyte "secretagentman.mp3" file on the sdcard to store our encrypted file system. The commands below can be issues via adb shell or terminal and require root permission.
 First Time Setup
+
 The "count=" variable below should create a 50MB file, but you might want to play around with the value on your system to see.
-dd if=/dev/zero of=/mnt/sdcard/secretagentman.mp3 bs=1M count=500000
-mknod /dev/loop0 b 7 0
-losetup /dev/loop0 /mnt/sdcard/secretagentman.mp3
-./cryptsetup luksFormat -c aes-plain /dev/loop0
-./cryptsetup luksOpen /dev/loop0 secretagentman
-./cryptsetup status secretagentman
-mke2fs -O uninit_bg,resize_inode,extent,dir_index -L DroidCrypt0 -FF /dev/mapper/secretagentman
-mkdir /mnt/sdcard/secretagentman
-mount /dev/mapper/secretagentman /mnt/sdcard/secretagentman
+
+    dd if=/dev/zero of=/mnt/sdcard/secretagentman.mp3 bs=1048576 count=50
+    mknod /dev/loop0 b 7 0
+    losetup /dev/loop0 /mnt/sdcard/secretagentman.mp3
+    ./cryptsetup luksFormat -c aes-plain /dev/loop0
+    ./cryptsetup luksOpen /dev/loop0 secretagentman
+    ./cryptsetup status secretagentman
+    mke2fs -O uninit_bg,resize_inode,extent,dir_index -L DroidCrypt0 -FF /dev/mapper/secretagentman
+    mkdir /mnt/sdcard/secretagentman
+    mount /dev/mapper/secretagentman /mnt/sdcard/secretagentman
 
 Mount Existing
-mknod /dev/loop0 b 7 0
-losetup /dev/loop0 /mnt/sdcard/secretagentman.mp3
-./cryptsetup luksOpen /dev/loop0 secretagentman
-mount /dev/mapper/secretagentman /mnt/sdcard/secretagentman
+
+    mknod /dev/loop0 b 7 0
+    losetup /dev/loop0 /mnt/sdcard/secretagentman.mp3
+    ./cryptsetup luksOpen /dev/loop0 secretagentman
+    mount /dev/mapper/secretagentman /mnt/sdcard/secretagentman
+
 To Unmount and close
-umount /mnt/sdcard/secretagentman
-./cryptsetup luksClose secretagentman
+
+    umount /mnt/sdcard/secretagentman
+    ./cryptsetup luksClose secretagentman
 
 To delete secured image
-First umount and close (see above)
-rm /mnt/sdcard/secretagentman.mp3
-To access from Desktop
-Mount your SDCard via USB on your desktop machine
-Use a desktop version of cryptsetup, and follow the "Mount Existing" instructions from above, with step 2 updated to point to the desktop mount location of the "secretagentman.mp3"
-Ways to improve security of file and mount directory
-Store the file and folder as hidden files: /mnt/sdcard/.temp.file and the mount point /mnt/sdcard/.temp
 
-Other ideas?
+    First umount and close (see above)
+    rm /mnt/sdcard/secretagentman.mp3
+
+To access from Desktop
+
+    Mount your SDCard via USB on your desktop machine
+    Use a desktop version of cryptsetup, and follow the "Mount Existing" instructions from above, with step 2 updated to point to the desktop mount location of the "secretagentman.mp3"
+
+Ways to improve security of file and mount directory
+
+    Store the file and folder as hidden files: /mnt/sdcard/.temp.file and the mount point /mnt/sdcard/.temp
+    Other ideas?
+
+
 Encrypted Internal UserData Partition
 WARNING: This is an advanced usage of LUKS and should only be attempted by experience developers and admins.
 Information taken from this thread: http://forum.xda-developers.com/showpost.php?p=11616180&postcount=12
