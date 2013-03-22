@@ -1,3 +1,17 @@
+--- cryptsetup-1.2.0/src/cryptsetup.c	2013-03-22 07:29:16.179259272 +0100
++++ cryptsetup-1.2.0/src/cryptsetup.c	2013-03-22 07:21:41.953006887 +0100
+@@ -15,6 +15,10 @@
+ #include "../config.h"
+ 
+ #include "cryptsetup.h"
++#include "getline.c"
++#include "getline.h"
++#include "getdelim.c"
++#include "getdelim.h"
+ 
+ static int opt_verbose = 0;
+ static int opt_debug = 0;
+
 --- cryptsetup-1.2.0/lib/utils.c	2010-11-15 10:37:46.000000000 -0500
 +++ cryptsetup-1.2.0/lib/utils.c	2011-02-02 01:40:52.000000000 -0500
 @@ -384,11 +384,13 @@
