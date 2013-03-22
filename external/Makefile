@@ -13,7 +13,7 @@ EXTERNAL_ROOT = $(PROJECT_ROOT)/external
 
 # Android NDK setup
 NDK_BASE ?=  /usr/local/android-ndk
-NDK_PLATFORM_LEVEL ?= 9
+NDK_PLATFORM_LEVEL ?= 14
 NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_LEVEL)/arch-arm
 NDK_UNAME := $(shell uname -s | tr '[A-Z]' '[a-z]')
 NDK_TOOLCHAIN=$(NDK_BASE)/toolchains/arm-linux-androideabi-4.4.3/prebuilt/$(NDK_UNAME)-x86
@@ -48,7 +48,7 @@ LDFLAGS = -L$(LOCAL)/lib -Wl,--rpath,$(LOCAL)/lib
 # download sources and verify
 
 
-SOURCEDIRS = libgpg-error-1.10 libgcrypt-1.4.6 popt-1.14 cryptsetup-1.2.0 LVM2.2.02.79 util-linux-ng-2.18
+SOURCEDIRS = libgpg-error-1.11 libgcrypt-1.4.6 popt-1.14 cryptsetup-1.2.0 LVM2.2.02.79 util-linux-ng-2.18
 
 all: cryptsetup-install
 
@@ -56,32 +56,32 @@ all: cryptsetup-install
 #------------------------------------------------------------------------------#
 # libgpg-error
 
-libgpg-error-1.10.tar.bz2.sig: libgpg-error-1.10.tar.bz2
-	wget ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.10.tar.bz2.sig
+libgpg-error-1.11.tar.bz2.sig: libgpg-error-1.11.tar.bz2
+	wget ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.11.tar.bz2.sig
 # TODO verify
 
-libgpg-error-1.10.tar.bz2:
-	wget -c ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.10.tar.bz2
-	sha1sum -c libgpg-error-1.10.tar.bz2.sha1
+libgpg-error-1.11.tar.bz2:
+	wget -c ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.11.tar.bz2
+	sha1sum -c libgpg-error-1.11.tar.bz2.sha1
 
-libgpg-error-1.10: libgpg-error-1.10.tar.bz2.sig
-	tar xjf libgpg-error-1.10.tar.bz2
-	cp config.guess config.sub libgpg-error-1.10/
+libgpg-error-1.11: libgpg-error-1.11.tar.bz2.sig
+	tar xjf libgpg-error-1.11.tar.bz2
+	cp config.guess config.sub libgpg-error-1.11/
 
-libgpg-error-1.10/config.sub: libgpg-error-1.10 config.sub
-	cp config.sub libgpg-error-1.10/config.sub
+libgpg-error-1.11/config.sub: libgpg-error-1.11 config.sub
+	cp config.sub libgpg-error-1.11/config.sub
 
-libgpg-error-1.10/config.guess: libgpg-error-1.10 config.guess
-	cp config.guess libgpg-error-1.10/config.guess
+libgpg-error-1.11/config.guess: libgpg-error-1.11 config.guess
+	cp config.guess libgpg-error-1.11/config.guess
 
-libgpg-error-build: libgpg-error-1.10/config.sub libgpg-error-1.10/config.guess
-	cd libgpg-error-1.10 && \
+libgpg-error-build: libgpg-error-1.11/config.sub libgpg-error-1.11/config.guess
+	cd libgpg-error-1.11 && \
 		./configure CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 			--disable-languages --enable-static --host=$(HOST)
-	$(MAKE) -C libgpg-error-1.10
+	$(MAKE) -C libgpg-error-1.11
 
 $(LOCAL)/lib/libgpg-error.a: libgpg-error-build
-	$(MAKE) -C libgpg-error-1.10 DESTDIR=$(DESTDIR) prefix= install
+	$(MAKE) -C libgpg-error-1.11 DESTDIR=$(DESTDIR) prefix= install
 
 libgpg-error-install: $(LOCAL)/lib/libgpg-error.a
 
@@ -180,7 +180,7 @@ popt-1.14/config.guess: popt-1.14 config.guess
 
 popt-build: popt-1.14 popt-1.14/config.sub popt-1.14/config.guess
 	cd popt-1.14 && \
-		autoreconf && \
+		autoreconf -fi && \
 		CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 			./configure --prefix=$(prefix) --host=$(HOST) --enable-static
 	$(MAKE) -C popt-1.14
