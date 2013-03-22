@@ -48,7 +48,7 @@ LDFLAGS = -L$(LOCAL)/lib -Wl,--rpath,$(LOCAL)/lib
 # download sources and verify
 
 
-SOURCEDIRS = libgpg-error-1.11 libgcrypt-1.4.6 popt-1.14 cryptsetup-1.2.0 LVM2.2.02.84 util-linux-ng-2.18
+SOURCEDIRS = libgpg-error-1.11 libgcrypt-1.5.1 popt-1.14 cryptsetup-1.2.0 LVM2.2.02.84 util-linux-ng-2.18
 
 all: cryptsetup-install
 
@@ -89,31 +89,31 @@ libgpg-error-install: $(LOCAL)/lib/libgpg-error.a
 #------------------------------------------------------------------------------#
 # 
 
-libgcrypt-1.4.6.tar.bz2.sig: libgcrypt-1.4.6.tar.bz2
-	wget ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.4.6.tar.bz2.sig
+libgcrypt-1.5.1.tar.bz2.sig: libgcrypt-1.5.1.tar.bz2
+	wget ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.5.1.tar.bz2.sig
 
-libgcrypt-1.4.6.tar.bz2:
-	wget -c ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.4.6.tar.bz2
-	sha1sum -c libgcrypt-1.4.6.tar.bz2.sha1
+libgcrypt-1.5.1.tar.bz2:
+	wget -c ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.5.1.tar.bz2
+	sha1sum -c libgcrypt-1.5.1.tar.bz2.sha1
 
-libgcrypt-1.4.6: libgcrypt-1.4.6.tar.bz2.sig
-	tar xjf libgcrypt-1.4.6.tar.bz2
-	patch -p0 < libgcrypt-1.4.6-android.diff
+libgcrypt-1.5.1: libgcrypt-1.5.1.tar.bz2.sig
+	tar xjf libgcrypt-1.5.1.tar.bz2
+	patch -p0 < libgcrypt-1.5.1-android.diff
 
-libgcrypt-1.4.6/config.sub: libgcrypt-1.4.6 config.sub
-	cp config.sub libgcrypt-1.4.6/config.sub
+libgcrypt-1.5.1/config.sub: libgcrypt-1.5.1 config.sub
+	cp config.sub libgcrypt-1.5.1/config.sub
 
-libgcrypt-1.4.6/config.guess: libgcrypt-1.4.6 config.guess
-	cp config.guess libgcrypt-1.4.6/config.guess
+libgcrypt-1.5.1/config.guess: libgcrypt-1.5.1 config.guess
+	cp config.guess libgcrypt-1.5.1/config.guess
 
-libgcrypt-build: libgpg-error-install libgcrypt-1.4.6 libgcrypt-1.4.6/config.sub libgcrypt-1.4.6/config.guess
-	cd libgcrypt-1.4.6 && \
+libgcrypt-build: libgpg-error-install libgcrypt-1.5.1 libgcrypt-1.5.1/config.sub libgcrypt-1.5.1/config.guess
+	cd libgcrypt-1.5.1 && \
 		CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" \
 			./configure --enable-maintainer-mode --enable-static --host=$(HOST) --with-gpg-error-prefix=$(LOCAL) --prefix=$(prefix)
-	$(MAKE) -C libgcrypt-1.4.6
+	$(MAKE) -C libgcrypt-1.5.1
 
 $(LOCAL)/lib/libgcrypt.a: libgcrypt-build
-	$(MAKE) -C libgcrypt-1.4.6 DESTDIR=$(DESTDIR) prefix= install
+	$(MAKE) -C libgcrypt-1.5.1 DESTDIR=$(DESTDIR) prefix= install
 	ls -l $(LOCAL)/lib/libgcrypt.a
 
 libgcrypt-install: $(LOCAL)/lib/libgcrypt.a

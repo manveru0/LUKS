@@ -1,0 +1,10 @@
+--- libgcrypt-1.5.1/src/gcrypt.h.in 2013-03-22 17:30:21.130239489 +0100
++++ libgcrypt-1.5.1/src/gcrypt.h.in    2013-03-22 17:30:21.114239416 +0100
+@@ -43,6 +43,7 @@
+ #else
+ # include <sys/socket.h>
+ # include <sys/time.h>
++# include <sys/select.h>
+ #@INSERT_SYS_SELECT_H@
+ #endif /*!_WIN32*/
+ 
