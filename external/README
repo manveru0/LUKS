@@ -1,3 +1,5 @@
+@modified by Manveru0, 2013
+
 
 To build the whole shebang, run: make.  It'll download the sources, untar
 them, patch them, and set everything up, then build everything and install it
@@ -24,7 +26,7 @@ Notes About This Build
   getdelim.h files in the cryptsetup patch are from:
   http://android-wifi-tether.googlecode.com/svn/tools/wireless-tools/
 
-- This was developed on an Ubuntu/Maverick i386 32-bit machine.  It might work
+- This was developed on an Debian/Sid i386 32-bit machine.  It might work
   on other setups, but no guarantees.
 
 - config.guess and config.sub are included from libtool 2.4 to support the
