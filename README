@@ -1,3 +1,12 @@
+Modified by Manveru0, 2013
+
+The repo has been modified in order to compile cryptsetup.static for Android JellyBean
+
+libgpgerror has been updatet to version 1.11
+LVM2 has been updatet to version 2.02.84 because there ain't no version 79 online (sources.redhat.com)
+The repo as it is has been successfully compiled on Debian Sid
+There are no guarantees that it might work on other systems (though it should).
+
 Warning
 
 **At this time, this software should be treated as alpha software and used with a grain of paranoid salt. **
@@ -30,8 +39,8 @@ set up the Android NDK on your computer
 install required software: sudo apt-get install autoconf automake libtool autopoint git make patch
 get the sources: git clone git://github.com/guardianproject/LUKS.git
 cd LUKS/external
-make NDK_ROOT=/usr/local/android-ndk-r5 (or change the path to where you put the folder)
-adb push sbin/cryptsetup.static /data/local/cryptsetup
+make NDK_ROOT=/usr/local/android-ndk-r8d (or change the path to where you put the folder)
+adb push sbin/cryptsetup.static /system/xbin
 For more info, read the README
 Or you can download our binary: cryptsetup (right-click and download)
 Usage - Encrypted Mount
