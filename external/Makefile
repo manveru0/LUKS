@@ -12,7 +12,7 @@ PROJECT_ROOT = $(CWD)
 EXTERNAL_ROOT = $(PROJECT_ROOT)/external
 
 # Android NDK setup
-NDK_BASE ?=  /usr/local/android-ndk
+NDK_BASE ?=  /home/manveru/android-ndk-r8d
 NDK_PLATFORM_LEVEL ?= 14
 NDK_SYSROOT=$(NDK_BASE)/platforms/android-$(NDK_PLATFORM_LEVEL)/arch-arm
 NDK_UNAME := $(shell uname -s | tr '[A-Z]' '[a-z]')
@@ -48,7 +48,7 @@ LDFLAGS = -L$(LOCAL)/lib -Wl,--rpath,$(LOCAL)/lib
 # download sources and verify
 
 
-SOURCEDIRS = libgpg-error-1.11 libgcrypt-1.4.6 popt-1.14 cryptsetup-1.2.0 LVM2.2.02.79 util-linux-ng-2.18
+SOURCEDIRS = libgpg-error-1.11 libgcrypt-1.4.6 popt-1.14 cryptsetup-1.2.0 LVM2.2.02.98 util-linux-ng-2.18
 
 all: cryptsetup-install
 
@@ -126,33 +126,33 @@ libgcrypt-install: $(LOCAL)/lib/libgcrypt.a
 #------------------------------------------------------------------------------#
 # LVM2
 
-LVM2.2.02.79.tgz.asc: LVM2.2.02.79.tgz
-	wget ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.79.tgz.asc
+LVM2.2.02.98.tgz.asc: LVM2.2.02.98.tgz
+	wget ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.98.tgz.asc
 # TODO verify
 
-LVM2.2.02.79.tgz:
-	wget -c ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.79.tgz
-	sha1sum -c LVM2.2.02.79.tgz.sha1
+LVM2.2.02.98.tgz:
+	wget -c ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.98.tgz
+	sha1sum -c LVM2.2.02.98.tgz.sha1
 
-LVM2.2.02.79: LVM2.2.02.79.tgz.asc
-	tar xzf LVM2.2.02.79.tgz
-	patch -p0 < LVM2.2.02.79-android.diff
+LVM2.2.02.98: LVM2.2.02.98.tgz.asc
+	tar xzf LVM2.2.02.98.tgz
+	patch -p0 < LVM2.2.02.98-android.diff
 
-LVM2.2.02.79/autoconf/config.sub: LVM2.2.02.79 config.sub
-	cp config.sub LVM2.2.02.79/autoconf/config.sub
+LVM2.2.02.98/autoconf/config.sub: LVM2.2.02.98 config.sub
+	cp config.sub LVM2.2.02.98/autoconf/config.sub
 
-LVM2.2.02.79/autoconf/config.guess: LVM2.2.02.79 config.guess
-	cp config.guess LVM2.2.02.79/autoconf/config.guess
+LVM2.2.02.98/autoconf/config.guess: LVM2.2.02.98 config.guess
+	cp config.guess LVM2.2.02.98/autoconf/config.guess
 
 #Now we have to get LVM2
-lvm2-build: LVM2.2.02.79/autoconf/config.sub LVM2.2.02.79/autoconf/config.guess
-	cd LVM2.2.02.79 && \
+lvm2-build: LVM2.2.02.98/autoconf/config.sub LVM2.2.02.98/autoconf/config.guess
+	cd LVM2.2.02.98 && \
 		autoreconf && \
 		CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --host=$(HOST) --prefix=$(prefix) --enable-static_link --enable-lvm1_fallback --enable-fsadm --with-clvmd=cman --with-cluster=internal --with-pool=internal --with-user= --with-group= --with-dmdir=device-mapper.0 --with-device-uid=0 --with-device-gid=6 --with-device-mode=0660 --with-clvmd=none --with-pool=none --with-cluster=none --with-snapshots=none --with-mirrors=none --enable-pkgconfig
-	$(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" -C LVM2.2.02.79
+	$(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" -C LVM2.2.02.98
 
 $(LOCAL)/lib/libdevmapper.a: lvm2-build
-	$(MAKE) -C LVM2.2.02.79 DESTDIR=$(DESTDIR) prefix= install
+	$(MAKE) -C LVM2.2.02.98 DESTDIR=$(DESTDIR) prefix= install
 
 lvm2-install: $(LOCAL)/lib/libdevmapper.a
 
