@@ -3,7 +3,7 @@ Modified by Manveru0, 2013
 The repo has been modified in order to compile cryptsetup.static for Android JellyBean
 
 libgpgerror has been updated to version 1.11
-libgcrypt has been updatet to verson 1.5.1
+libgcrypt has been updated to verson 1.5.1
 LVM2 has been updated to version 2.02.84 because there ain't no version 79 online (sources.redhat.com)
 The repo as it is has been successfully compiled on Debian Sid
 There are no guarantees that it might work on other systems (though it should).
@@ -92,13 +92,7 @@ Ways to improve security of file and mount directory
 
 
 Encrypted Internal UserData Partition
+
 WARNING: This is an advanced usage of LUKS and should only be attempted by experience developers and admins.
 Information taken from this thread: http://forum.xda-developers.com/showpost.php?p=11616180&postcount=12
 init.rc and boot app available at: https://github.com/guardianproject/LUKS/tree/master/app/boot
-/dev/block/mtdblock5 is the "userdata" partition. I formatted it and mount it to /encrypted-data during init:
-mount yaffs2 mtd@userdata /encrypted-data nosuid nodev
-The only file on this partition is "data.encrypted" file, which gets created in init.rc as a loopback device:
-exec /system/bin/losetup /dev/block/loop0 /encrypted-data/data.encrypted
-Create the "data.encrypted" file on my computer with cryptsetup and losetup, and copied all files from my old unencrypted userdata partition to it and then copied it back as a file to the formated userdata partition.
-The sdcard "/dev/block/mmcblk0p2" partition is formated with "cryptsetup luksFormat", I did this also on my computer, saves some time. And then copy everything from the old unencrypted sdcard.
-Probably should make a script run during shutdown to cleanly "luksClose" the encrypted partition and then umount them. Not doing this is probably very crazy
