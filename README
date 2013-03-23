@@ -22,7 +22,7 @@ security flaws this means you cannot encrypt your phone without having your disp
 While there is a solution around on how to set two different passwords for unlocking the display and phone, there is none for just having your phone encrypted without
 the "disadvantage" of having your display locked by a password as well (at least not known by the author). Guardianproject successfully tried to provide a solution for this problem.
 
-There is an allready compiled cryptsetup and cryptsetup.static binary under /external/sbin/.
+There is an already compiled cryptsetup and cryptsetup.static binary under /external/sbin/.
 
 Credit and thanx to guardianproject
 
