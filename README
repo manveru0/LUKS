@@ -22,6 +22,10 @@ security flaws this means you cannot encrypt your phone without having your disp
 While there is a solution around on how to set two different passwords for unlocking the display and phone, there is none for just having your phone encrypted without
 the "disadvantage" of having your display locked by a password as well (at least not known by the author). Guardianproject successfully tried to provide a solution for this problem.
 
+There is an allready compiled cryptsetup and cryptsetup.static binary under /external/sbin/.
+
+Credit and thanx to guardianproject
+
 Below is the old README provided by guardianproject, slightly modified by Manveru0, 2013
 
 Warning
@@ -48,9 +52,6 @@ enabling the user to transport or migrate his data seamlessly.
 
 This project is the port of LUKS to Android. We have built upon work from the greater Android/XDA community, and updated the build process to provide a 
 clean Makefile for use with the latest Android Native Development Kit.
-
-We are working on a user friendly app that will users to create and mount encrypted stores on their internal or external memory. 
-The app project source can be found here: https://github.com/guardianproject/LUKS/tree/master/app/LUKSApp
 
 Reference
 
@@ -109,9 +110,3 @@ Ways to improve security of file and mount directory
 
     Store the file and folder as hidden files: /mnt/sdcard/.temp.file and the mount point /mnt/sdcard/.temp
     Other ideas?
-
-Encrypted Internal UserData Partition
-
-WARNING: This is an advanced usage of LUKS and should only be attempted by experience developers and admins.
-Information taken from this thread: http://forum.xda-developers.com/showpost.php?p=11616180&postcount=12
-init.rc and boot app available at: https://github.com/guardianproject/LUKS/tree/master/app/boot
