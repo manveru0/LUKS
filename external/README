@@ -3,7 +3,8 @@
 
 To build the whole shebang, run: make.  It'll download the sources, untar
 them, patch them, and set everything up, then build everything and install it
-into external/lib, external/include, etc.
+into external/lib, external/include, etc. Don't forget to customize NDK_BASE 
+in the Makefile or run make with NDK_BASE= your path
 
 Build Products
 --------------
