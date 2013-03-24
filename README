@@ -26,6 +26,16 @@ There is an already compiled cryptsetup and cryptsetup.static binary under /exte
 
 Credit and thanx to guardianproject
 
+luksunlock
+
+I've also uploaded the source files for a binary called luksunlock. It provides a simple UI in order to enter the cryptsetup password to unlock encrypted data during the boot sequence.
+The original source has been taken from: http://forum.xda-developers.com/showthread.php?t=866131
+
+Missing: Instructions on how to build the luksunlock binary.
+
+All credit and thanks go to XDA member sigkill1337 for sharing his sources and ideas!
+
+
 Below is the old README provided by guardianproject, slightly modified by Manveru0, 2013
 
 Warning
