@@ -118,8 +118,8 @@ static void *input_thread() {
 }
 
 void ui_init(void) {
-	gr_init();
-	ev_init();
+	 gr_init();
+	 ev_init(input_callback, NULL);
 
 	// Generate bitmap from /system/res/padlock.png ( you can change the path in minui/resources.c)
 	res_create_surface("padlock", &background);
