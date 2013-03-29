@@ -11,14 +11,6 @@
 
 #include "minui/minui.h"
 
-#define CRYPTSETUP		"/system/xbin/cryptsetup.static"
-
-#define SDCARD_DEVICE		"/dev/block/mmcblk0p1"
-#define DATA_DEVICE		"/dev/block/loop0"
-
-#define SDCARD_MAPPER_NAME	"encrypted-sdcard"
-#define DATA_MAPPER_NAME	"encrypted-data"
-
 //#define TOUCH_DEBUGGING_ENABLED
 
 // not sure what to call this, but on my Nexus One it looks like touches are captured at 8x screen res
@@ -32,7 +24,10 @@ int CHAR_WIDTH, CHAR_HEIGHT, FB_WIDTH, FB_HEIGHT;
 char passphrase[1024];
 
 gr_surface img_softkeybd[4];
+
 char *cmd_mount;
+char *yaffs_dev;
+char *yaffs_mountpoint;
 
 #define SHIFT_STATE_NONE 0
 #define SHIFT_STATE_SHIFTED 1
@@ -169,16 +164,11 @@ int unlock() {
 
     write_modal_status_text("Unlocking...");
 
-    snprintf(buffer, sizeof(buffer) - 1, "echo %s | %s luksOpen %s %s", escape_input(passphrase), CRYPTSETUP, SDCARD_DEVICE, SDCARD_MAPPER_NAME);
+    snprintf(buffer, sizeof(buffer), "%s -t yaffs2 -o nosuid,nodev,relatime,unlock_encrypted=%s %s %s", cmd_mount, escape_input(passphrase), yaffs_dev, yaffs_mountpoint);
     if (system(buffer) != 0) {
         return 0;
     }
 
-    snprintf(buffer, sizeof(buffer) - 1, "echo %s | %s luksOpen %s %s", escape_input(passphrase), CRYPTSETUP, DATA_DEVICE, DATA_MAPPER_NAME);
-    if (system(buffer) != 0) {
-        return 0;
-    }
-    
     return 1;
 }
 
@@ -323,12 +313,14 @@ void generate_keymappings();
 
 int main(int argc, char **argv, char **envp) {
     if (argc != 4) {
-        printf("%s usage: path-to-mount something", argv[0]);
+        printf("%s usage: path-to-mount whisper-yaffs-device whisper-yaffs-mountpoint", argv[0]);
         exit(255);
     }
 
     // save configuration params
     cmd_mount = argv[1];
+    yaffs_dev = argv[2];
+    yaffs_mountpoint = argv[3];
 
     // initialize keyboards
     hard_keybd.shift_state = SHIFT_STATE_NONE;
@@ -519,4 +511,4 @@ int find_softkey_code(int x, int y) {
 
     return 0;
 #undef SEARCH
-} 
+}

@@ -49,8 +49,6 @@
 #define PIXEL_SIZE   2
 #endif
 
-#define NUM_BUFFERS 2
-
 typedef struct {
     GGLSurface texture;
     unsigned cwidth;
@@ -61,16 +59,14 @@ typedef struct {
 static GRFont *gr_font = 0;
 static GGLContext *gr_context = 0;
 static GGLSurface gr_font_texture;
-static GGLSurface gr_framebuffer[NUM_BUFFERS];
+static GGLSurface gr_framebuffer[2];
 static GGLSurface gr_mem_surface;
 static unsigned gr_active_fb = 0;
-static unsigned double_buffering = 0;
-static int overscan_percent = OVERSCAN_PERCENT;
-static int overscan_offset_x = 0;
-static int overscan_offset_y = 0;
 
 static int gr_fb_fd = -1;
 static int gr_vt_fd = -1;
+
+static bool rotate_cw = 0;
 
 static struct fb_var_screeninfo vi;
 static struct fb_fix_screeninfo fi;
@@ -140,9 +136,6 @@ static int get_framebuffer(GGLSurface *fb)
         return -1;
     }
 
-    overscan_offset_x = vi.xres * overscan_percent / 100;
-    overscan_offset_y = vi.yres * overscan_percent / 100;
-
     fb->version = sizeof(*fb);
     fb->width = vi.xres;
     fb->height = vi.yres;
@@ -152,12 +145,6 @@ static int get_framebuffer(GGLSurface *fb)
     memset(fb->data, 0, vi.yres * fi.line_length);
 
     fb++;
-
-    /* check if we can use double buffering */
-    if (vi.yres * fi.line_length * 2 > fi.smem_len)
-        return fd;
-
-    double_buffering = 1;
 
     fb->version = sizeof(*fb);
     fb->width = vi.xres;
@@ -172,17 +159,24 @@ static int get_framebuffer(GGLSurface *fb)
 
 static void get_memory_surface(GGLSurface* ms) {
   ms->version = sizeof(*ms);
-  ms->width = vi.xres;
-  ms->height = vi.yres;
-  ms->stride = fi.line_length/PIXEL_SIZE;
-  ms->data = malloc(fi.line_length * vi.yres);
+  if (!rotate_cw) {
+      ms->width = vi.xres;
+      ms->height = vi.yres;
+      ms->stride = fi.line_length/PIXEL_SIZE;
+      ms->data = malloc(fi.line_length * vi.yres);
+  } else {
+      ms->width = vi.yres;
+      ms->height = vi.xres;
+      ms->stride = vi.yres;
+      ms->data = malloc(ms->height * ms->stride * PIXEL_SIZE);
+  }
   ms->format = PIXEL_FORMAT;
 }
 
 static void set_active_framebuffer(unsigned n)
 {
-    if (n > 1 || !double_buffering) return;
-    vi.yres_virtual = vi.yres * NUM_BUFFERS;
+    if (n > 1) return;
+    vi.yres_virtual = vi.yres * PIXEL_SIZE;
     vi.yoffset = n * vi.yres;
     vi.bits_per_pixel = PIXEL_SIZE * 8;
     if (ioctl(gr_fb_fd, FBIOPUT_VSCREENINFO, &vi) < 0) {
@@ -195,13 +189,28 @@ void gr_flip(void)
     GGLContext *gl = gr_context;
 
     /* swap front and back buffers */
-    if (double_buffering)
-        gr_active_fb = (gr_active_fb + 1) & 1;
+    gr_active_fb = (gr_active_fb + 1) & 1;
 
     /* copy data from the in-memory surface to the buffer we're about
      * to make active. */
-    memcpy(gr_framebuffer[gr_active_fb].data, gr_mem_surface.data,
-           fi.line_length * vi.yres);
+    if (!rotate_cw) {
+        memcpy(gr_framebuffer[gr_active_fb].data, gr_mem_surface.data,
+               fi.line_length * vi.yres);
+    } else {
+        // TODO make this faster? this is horribly inefficient, but I don't exactly need high FPS
+        int y, x;
+#if PIXEL_SIZE == 2
+        for (y = 0; y < gr_mem_surface.height; y++) {
+            for (x = 0; x < gr_mem_surface.width; x++) {
+                ((unsigned short *)gr_framebuffer[gr_active_fb].data)
+                    [(gr_framebuffer[gr_active_fb].height-1-x) * gr_framebuffer[gr_active_fb].stride + y] =
+                  ((unsigned short *)gr_mem_surface.data)[y * gr_mem_surface.stride + x];
+            }
+        }
+#else
+#error "rewrite this rotation code for the pixel size you have"
+#endif
+    }
 
     /* inform the display driver */
     set_active_framebuffer(gr_active_fb);
@@ -235,9 +244,6 @@ int gr_text(int x, int y, const char *s)
     GRFont *font = gr_font;
     unsigned off;
 
-    x += overscan_offset_x;
-    y += overscan_offset_y;
-
     y -= font->ascent;
 
     gl->bindTexture(gl, &font->texture);
@@ -256,51 +262,21 @@ int gr_text(int x, int y, const char *s)
     }
 
     return x;
+    // TODO
 }
 
-void gr_texticon(int x, int y, gr_surface icon) {
-    if (gr_context == NULL || icon == NULL) {
-        return;
-    }
-    GGLContext* gl = gr_context;
-
-    x += overscan_offset_x;
-    y += overscan_offset_y;
-
-    gl->bindTexture(gl, (GGLSurface*) icon);
-    gl->texEnvi(gl, GGL_TEXTURE_ENV, GGL_TEXTURE_ENV_MODE, GGL_REPLACE);
-    gl->texGeni(gl, GGL_S, GGL_TEXTURE_GEN_MODE, GGL_ONE_TO_ONE);
-    gl->texGeni(gl, GGL_T, GGL_TEXTURE_GEN_MODE, GGL_ONE_TO_ONE);
-    gl->enable(gl, GGL_TEXTURE_2D);
-
-    int w = gr_get_width(icon);
-    int h = gr_get_height(icon);
-
-    gl->texCoord2i(gl, -x, -y);
-    gl->recti(gl, x, y, x+gr_get_width(icon), y+gr_get_height(icon));
-}
-
-void gr_fill(int x1, int y1, int x2, int y2)
+void gr_fill(int x, int y, int w, int h)
 {
-    x1 += overscan_offset_x;
-    y1 += overscan_offset_y;
-
-    x2 += overscan_offset_x;
-    y2 += overscan_offset_y;
-
     GGLContext *gl = gr_context;
     gl->disable(gl, GGL_TEXTURE_2D);
-    gl->recti(gl, x1, y1, x2, y2);
+    gl->recti(gl, x, y, w, h);
 }
 
 void gr_blit(gr_surface source, int sx, int sy, int w, int h, int dx, int dy) {
-    if (gr_context == NULL || source == NULL) {
+    if (gr_context == NULL) {
         return;
     }
     GGLContext *gl = gr_context;
-
-    dx += overscan_offset_x;
-    dy += overscan_offset_y;
 
     gl->bindTexture(gl, (GGLSurface*) source);
     gl->texEnvi(gl, GGL_TEXTURE_ENV, GGL_TEXTURE_ENV_MODE, GGL_REPLACE);
@@ -354,8 +330,10 @@ static void gr_init_font(void)
     gr_font->ascent = font.cheight - 2;
 }
 
-int gr_init(void)
+int gr_init(bool rotate)
 {
+    rotate_cw = rotate;
+
     gglInit(&gr_context);
     GGLContext *gl = gr_context;
 
@@ -411,12 +389,20 @@ void gr_exit(void)
 
 int gr_fb_width(void)
 {
-    return gr_framebuffer[0].width - 2*overscan_offset_x;
+    if (!rotate_cw) {
+        return gr_framebuffer[0].width;
+    } else {
+        return gr_framebuffer[0].height;
+    }
 }
 
 int gr_fb_height(void)
 {
-    return gr_framebuffer[0].height - 2*overscan_offset_y;
+    if (!rotate_cw) {
+        return gr_framebuffer[0].height;
+    } else {
+        return gr_framebuffer[0].width;
+    }
 }
 
 gr_pixel *gr_fb_data(void)
