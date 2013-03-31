@@ -13,13 +13,11 @@
 
 //#define TOUCH_DEBUGGING_ENABLED
 
-// not sure what to call this, but on my Nexus One it looks like touches are captured at 8x screen res
-#define TOUCH_RESOLUTION 8
-
 // these are essentially constants, but initialized at runtime
+//those variables are all 0
 int CHAR_WIDTH, CHAR_HEIGHT, FB_WIDTH, FB_HEIGHT;
 
-#define SOFTKEYBD_TOP (FB_HEIGHT-260)
+#define SOFTKEYBD_TOP (FB_HEIGHT-438)
 
 char passphrase[1024];
 
@@ -86,7 +84,7 @@ void on_exit() {
 }
 
 void ui_init() {
-    gr_init(true);
+    gr_init();
     ev_init(on_input_event, NULL);
 
     atexit(on_exit);
@@ -104,7 +102,7 @@ void draw_screen() {
     gr_fill(0, 0, FB_WIDTH, SOFTKEYBD_TOP);
 
     if (img_softkeybd[soft_keybd.shift_state]) { // will be 0 iff loading failed
-        gr_blit(img_softkeybd[soft_keybd.shift_state], 0, 0, 800, 260, 0, SOFTKEYBD_TOP);
+        gr_blit(img_softkeybd[soft_keybd.shift_state], 0, 0, 720, 438, 0, SOFTKEYBD_TOP);
     }
 
     gr_color(0, 0, 0, 255);
@@ -245,18 +243,7 @@ bool handle_input(struct input_event *pEvent) {
         } else if (pEvent->code == ABS_Y) {
             partial_touch_y = pEvent->value;
         }
-    } else if(pEvent->type == EV_SYN && pEvent->code == SYN_REPORT) {
-        // touch screen - commit event data
-        // transform touch coords since we've rotated the screen
-        bool ret = on_touch(FB_WIDTH-1-(partial_touch_y / TOUCH_RESOLUTION),
-                 (partial_touch_x / TOUCH_RESOLUTION), partial_touch_down);
-#ifndef TOUCH_DEBUGGING_ENABLED
-        return ret;
-#else
-        return true;
-#endif
-    }
-
+    } 
     return false;
 }
 
@@ -312,11 +299,11 @@ bool on_touch(int x, int y, int down) {
 void generate_keymappings();
 
 int main(int argc, char **argv, char **envp) {
-  /*  if (argc != 4) {
+ /*   if (argc != 4) {
         printf("%s usage: path-to-mount whisper-yaffs-device whisper-yaffs-mountpoint", argv[0]);
         exit(255);
     }*/
-
+ 
     // save configuration params
     cmd_mount = argv[1];
     yaffs_dev = argv[2];
