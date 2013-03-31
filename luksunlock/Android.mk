@@ -1,8 +1,6 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
-commands_recovery_local_path := $(LOCAL_PATH)
-
 ifneq ($(TARGET_SIMULATOR),true)
 ifeq ($(TARGET_ARCH),arm)
 
@@ -26,7 +24,6 @@ include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
 
-include $(commands_recovery_local_path)/minui/Android.mk
 commands_recovery_local_path :=
 
 endif   # TARGET_ARCH == arm
