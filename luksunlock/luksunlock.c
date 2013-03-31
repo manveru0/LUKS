@@ -312,10 +312,10 @@ bool on_touch(int x, int y, int down) {
 void generate_keymappings();
 
 int main(int argc, char **argv, char **envp) {
-    if (argc != 4) {
+  /*  if (argc != 4) {
         printf("%s usage: path-to-mount whisper-yaffs-device whisper-yaffs-mountpoint", argv[0]);
         exit(255);
-    }
+    }*/
 
     // save configuration params
     cmd_mount = argv[1];
